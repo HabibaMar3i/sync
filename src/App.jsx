@@ -12,19 +12,19 @@ import NotFoundPage from './pages/NotFoundPage/NotFoundPage'
 function App() {
   const router = createBrowserRouter([
     {
-      path: '', element: AuthLayout, children: [
-        { path: 'login', element: LoginPage },
-        { path: 'register', element: RegisterPage }
+      path: '', element: <AuthLayout />, children: [
+        { path: 'login', element: <LoginPage /> },
+        { path: 'register', element: <RegisterPage /> }
       ]
     },
     {
-      path: '', element: MainLayout, children: [
-        { index: true, element: FeedPage },
-        { path: 'post-details', element: PostDetails },
-        { path: 'profile', element: ProfilePage }
+      path: '', element: <MainLayout />, children: [
+        { index: true, element: <FeedPage /> },
+        { path: 'post-details', element: <PostDetails /> },
+        { path: 'profile', element: <ProfilePage /> }
       ]
     },
-    { path: '*', element: NotFoundPage }
+    { path: '*', element: <NotFoundPage /> }
   ])
 
   return (
