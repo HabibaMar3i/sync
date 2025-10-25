@@ -1,8 +1,49 @@
 import { Input, Form, Button, Select, SelectItem } from "@heroui/react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as zod from "zod"
 
 export default function RegisterPage() {
     const genderOptions = ["Male", "Female"];
+
+    const schema = zod.object({
+        name: zod.string()
+            .nonempty("Please enter your name")
+            .min(3, { message: "Name must be at least 3 characters" })
+            .max(20, { message: "Name must be at most 20 characters" })
+            .regex(/^[a-zA-Z\s]+$/, { message: "Name must contain only letters and spaces" }),
+
+        email: zod.string()
+            .nonempty("Please enter your email")
+            .email({ message: "Please enter a valid email" }),
+
+        password: zod.string()
+            .nonempty("Please enter your password")
+            .min(8, { message: "Password must be at least 8 characters" })
+            .max(20, { message: "Password must be at most 20 characters" })
+            .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/, { message: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character" }),
+
+        rePassword: zod.string()
+            .nonempty("Please confirm your password"),
+
+        dateOfBirth: zod.coerce.date()
+            .refine((date) => !Number.isNaN(date?.getTime?.()), {
+                message: "Please enter your date of birth"
+            })
+            .refine((date) => {
+                const today = new Date();
+                const age = today.getFullYear() - date.getFullYear();
+                return age >= 18;
+            }, {
+                message: "You must be at least 18 years old"
+            }),
+
+        gender: zod.string()
+            .nonempty("Please select your gender")
+    }).refine((data) => data.password === data.rePassword, {
+        message: "Passwords do not match",
+        path: ["rePassword"]
+    })
 
     const {
         handleSubmit,
@@ -16,8 +57,9 @@ export default function RegisterPage() {
             rePassword: "",
             dateOfBirth: "",
             gender: ""
-        }
+        }, resolver: zodResolver(schema)
     });
+
 
     function handleRegister(formData) {
         alert("Register Success");
@@ -33,11 +75,7 @@ export default function RegisterPage() {
                     type="text"
                     variant="flat"
                     size="sm"
-                    {...register("name", {
-                        required: "Please enter your name",
-                        minLength: { value: 3, message: "Name must be at least 3 characters" },
-                        maxLength: { value: 20, message: "Name must be at most 20 characters" }
-                    })}
+                    {...register("name")}
                     errorMessage={errors.name?.message}
                     isInvalid={Boolean(errors.name)}
                 />
@@ -47,7 +85,7 @@ export default function RegisterPage() {
                     type="email"
                     variant="flat"
                     size="sm"
-                    {...register("email", { required: "Please enter your email" })}
+                    {...register("email")}
                     errorMessage={errors.email?.message}
                     isInvalid={Boolean(errors.email)}
                 />
@@ -57,7 +95,7 @@ export default function RegisterPage() {
                     type="password"
                     variant="flat"
                     size="sm"
-                    {...register("password", { required: "Please enter your password" })}
+                    {...register("password")}
                     errorMessage={errors.password?.message}
                     isInvalid={Boolean(errors.password)}
                 />
@@ -67,9 +105,7 @@ export default function RegisterPage() {
                     type="password"
                     variant="flat"
                     size="sm"
-                    {...register("rePassword", {
-                        required: "Please confirm your password"
-                    })}
+                    {...register("rePassword")}
                     errorMessage={errors.rePassword?.message}
                     isInvalid={Boolean(errors.rePassword)}
                 />
@@ -79,7 +115,7 @@ export default function RegisterPage() {
                     type="date"
                     variant="flat"
                     size="sm"
-                    {...register("dateOfBirth", { required: "Please enter your date of birth" })}
+                    {...register("dateOfBirth")}
                     errorMessage={errors.dateOfBirth?.message}
                     isInvalid={Boolean(errors.dateOfBirth)}
                 />
@@ -88,7 +124,7 @@ export default function RegisterPage() {
                     items={genderOptions}
                     label="Gender"
                     placeholder="Select your Gender"
-                    {...register("gender", { required: "Please select your gender" })}
+                    {...register("gender")}
                     errorMessage={errors.gender?.message}
                     isInvalid={Boolean(errors.gender)}
                 >
@@ -98,7 +134,7 @@ export default function RegisterPage() {
                         </SelectItem>
                     ))}
                 </Select>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" className="w-full">Submit</Button>
             </Form>
         </div>
     );
