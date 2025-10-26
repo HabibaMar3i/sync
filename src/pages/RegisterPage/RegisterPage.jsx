@@ -2,9 +2,8 @@ import { Input, Form, Button, Select, SelectItem } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema } from "../../schemas/authSchema";
-import registerApi from "../../services/authService";
+import { registerApi } from "../../services/authService";
 import { useState } from "react";
-import { set } from "zod";
 
 export default function RegisterPage() {
 
