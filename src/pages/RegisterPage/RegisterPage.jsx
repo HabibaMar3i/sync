@@ -1,10 +1,12 @@
 import { Input, Form, Button, Select, SelectItem } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { registerSchema } from "../../schemas/auth-schema";
+import { registerSchema } from "../../schemas/authSchema";
+import registerApi from "../../services/authService";
+import { useState } from "react";
+import { set } from "zod";
 
 export default function RegisterPage() {
-    const genderOptions = ["Male", "Female"];
 
     const {
         handleSubmit,
@@ -21,10 +23,21 @@ export default function RegisterPage() {
         }, resolver: zodResolver(registerSchema)
     });
 
+    const [isLoading, setIsLoading] = useState(false)
+    const [errorMsg, setErrorMsg] = useState("")
+    const [successMsg, setSuccessMsg] = useState("")
 
-    function handleRegister(formData) {
-        alert("Register Success");
-        console.log(formData);
+    async function handleRegister(formData) {
+        setIsLoading(true)
+        const data = await registerApi(formData)
+        setIsLoading(false)
+        if (data?.error) {
+            setErrorMsg(data.error)
+            setSuccessMsg("")
+        } else {
+            setSuccessMsg(data.message)
+            setErrorMsg("")
+        }
     }
 
     return (
@@ -82,20 +95,22 @@ export default function RegisterPage() {
                 />
 
                 <Select
-                    items={genderOptions}
                     label="Gender"
                     placeholder="Select your Gender"
                     {...register("gender")}
                     errorMessage={errors.gender?.message}
                     isInvalid={Boolean(errors.gender)}
                 >
-                    {genderOptions.map((gender) => (
-                        <SelectItem key={gender} value={gender}>
-                            {gender}
-                        </SelectItem>
-                    ))}
+                    <SelectItem key="male" value="male">
+                        Male
+                    </SelectItem>
+                    <SelectItem key="female" value="female">
+                        Female
+                    </SelectItem>
                 </Select>
-                <Button type="submit" className="w-full">Submit</Button>
+                <Button type="submit" className="w-full" isLoading={isLoading}>Submit</Button>
+                {errorMsg && <p className="text-red-500 text-center">{errorMsg}</p>}
+                {successMsg && <p className="text-green-500 text-center">{successMsg}</p>}
             </Form>
         </div>
     );
